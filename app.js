@@ -22,8 +22,51 @@ function loadEventListeners() {
     // Filter task event
     filter.addEventListener('keyup', filterTasks);
     // Edit task event
-    editItem.addEventListener('keyup', editTask);
+    // editItem.addEventListener('click', editTask);
 }
+
+function createTaskListItem(textSource) {
+    // Create li element
+    const li = document.createElement('li');
+    li.className = 'collection-item';
+
+    const label = document.createElement('label');
+
+    // Create new check box element and append to li
+    const checkBox = document.createElement('input');
+    checkBox.type = 'checkbox';
+    checkBox.className = 'completed filled-in';
+
+    label.appendChild(checkBox);
+
+    // Create text node in a span element and append to label
+    const span = document.createElement('span');
+    span.className = 'task-text';
+    span.appendChild(document.createTextNode(textSource));
+    label.appendChild(span);
+
+    li.appendChild(label);
+
+    // Create new edit link element
+    const editLink = document.createElement('a');
+    editLink.className = 'edit-item';
+    editLink.innerHTML = '<i class="small material-icons">edit</i>';
+    li.appendChild(editLink);
+
+    // Create new link element
+    const link = document.createElement('a');
+    link.className = 'delete-item';
+    link.innerHTML = '<i class="small material-icons">delete</i>';
+    li.appendChild(link);
+
+    // Append the li to ul
+    taskList.appendChild(li);
+
+
+}
+
+
+
 
 // Get Task from Local Storage
 function getTasks() {
@@ -35,33 +78,7 @@ function getTasks() {
     }
 
     tasks.forEach(function(task) {
-        // Create li element
-        const li = document.createElement('li');
-        // Add class
-        li.className = 'collection-item';
-        // Create text node and append
-        li.appendChild(document.createTextNode(task));
-
-        // Create new edit link element
-        const editLink = document.createElement('a');
-        // Add class
-        editLink.className = 'edit-item';
-        // And icon html
-        editLink.innerHTML = '<i class="fa fa-edit"></i>';
-        // Append the link to li
-        li.appendChild(editLink);
-
-        // Create new delete link element
-        const deleteLink = document.createElement('a');
-        // Add class
-        deleteLink.className = 'delete-item';
-        // And icon html
-        deleteLink.innerHTML = '<i class="fa fa-remove"></i>';
-        // Append the link to li
-        li.appendChild(deleteLink);
-
-        // Append the li to ul
-        taskList.appendChild(li);
+        createTaskListItem(task);
     });
 }
 
@@ -70,33 +87,7 @@ function addTask(e) {
     if (taskInput.value === '') {
         alert('Add a task, please.');
     } else {
-        // Create li element
-        const li = document.createElement('li');
-        // Add class
-        li.className = 'collection-item';
-        // Create text node and append
-        li.appendChild(document.createTextNode(taskInput.value));
-
-        // Create new edit link element
-        const editLink = document.createElement('a');
-        // Add class
-        editLink.className = 'edit-item';
-        // And icon html
-        editLink.innerHTML = '<i class="fa fa-edit"></i>';
-        // Append the link to li
-        li.appendChild(editLink);
-
-        // Create new link element
-        const link = document.createElement('a');
-        // Add class
-        link.className = 'delete-item';
-        // And icon html
-        link.innerHTML = '<i class="fa fa-remove"></i>';
-        // Append the link to li
-        li.appendChild(link);
-
-        // Append the li to ul
-        taskList.appendChild(li);
+        createTaskListItem(taskInput.value);
         // Store in Local Storage
         storeTaskInLocalStorage(taskInput.value);
         // Clear input field
@@ -104,15 +95,17 @@ function addTask(e) {
     }
     e.preventDefault();
 }
+
 //Edit Task
-function editTask(e) {
+function editTask() {
     // let li = e.target.parentElement;
-    console.log(editItem);
+    //console.log(editItem);
 
     //  .contentEditable = true;
+    const completed = document.querySelector('.completed');
+    completed.setAttribute("checked", "checked");
 
-
-    e.preventDefault();
+    // e.preventDefault();
 }
 
 // Store Task
@@ -125,7 +118,6 @@ function storeTaskInLocalStorage(task) {
     }
 
     tasks.push(task);
-
     localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
@@ -136,7 +128,7 @@ function removeTask(e) {
             e.target.parentElement.parentElement.remove();
 
             // Remove from Local Storage
-            removeTaskFromLocalStorage(e.target.parentElement.parentElement);
+            removeTaskFromLocalStorage(e.target.parentElement.parentElement.firstElementChild.firstElementChild.nextElementSibling);
         }
     }
 }
@@ -192,3 +184,20 @@ function filterTasks(e) {
         }
     });
 }
+
+
+
+
+
+/*
+when item is checked add the attribute [checked="checked"]
+if (document.querySelector('.completed').checked) {
+    alert('checked - checked');
+} else {
+    alert('NOT CHECKED');
+}
+
+
+
+
+*/
