@@ -5,6 +5,7 @@ const clearBtn = document.querySelector('.clear-tasks');
 const filter = document.querySelector('#filter');
 const taskInput = document.querySelector('#task');
 const editItem = document.querySelector('.edit-item');
+const completed = document.querySelector('.completed');
 
 // Load all event listeners
 loadEventListeners();
@@ -15,9 +16,9 @@ function loadEventListeners() {
     document.addEventListener('DOMContentLoaded', getTasks);
     // Add task event
     form.addEventListener('submit', addTask);
-    // Remove task event
-    taskList.addEventListener('click', removeTask);
-    // Clear task event
+    // Remove task event    removeTask
+    taskList.addEventListener('click', taskItemClicked);
+    // Clear task event  
     clearBtn.addEventListener('click', clearTasks);
     // Filter task event
     filter.addEventListener('keyup', filterTasks);
@@ -25,12 +26,55 @@ function loadEventListeners() {
     // editItem.addEventListener('click', editTask);
 }
 
+
+function taskItemClicked(e) {
+    // const target = e.target;
+    //delete --- edit-- - completed
+    // console.log(e);
+
+    if (e.target.parentElement.classList.contains('delete-item')) {
+        if (confirm('Are you sure you want to delete this task?')) {
+            e.target.parentElement.parentElement.remove();
+
+            // Remove from Local Storage
+            removeTaskFromLocalStorage(e.target.parentElement.parentElement.firstElementChild.nextElementSibling);
+        }
+    } else if (e.target.parentElement.classList.contains('edit-item')) {
+
+        const currentText = e.target.parentElement.previousElementSibling;
+        currentText.contentEditable = true;
+        const currentLi = e.target.parentElement.parentElement;
+        const currentEditA = e.target.parentElement;
+        const currentDeleteA = e.target.parentElement.nextElementSibling;
+        console.log(currentText);
+        currentText.addEventListener('click', function(e) {
+            const updateBtn = document.createElement('a');
+            updateBtn.className = 'waves-effect waves-light btn update-btn';
+            updateBtn.textContent = 'UPDATE';
+            console.log(updateBtn);
+            currentLi.replaceChild(updateBtn, currentEditA);
+        });
+        // change icons to "save" and "cancel"
+    } else if ((e.target.classList.contains('completed')) && (e.target.checked === true)) {
+        // Add checked to item in Local Storage
+    } else if (e.target.classList.contains('save')) {
+        // replace old text with new text in UI and in Local Storage
+    } else if (e.target.classList.contains('cancel')) {
+        // keep old text in UI and in Local Storage
+    }
+}
+
+
 function createTaskListItem(textSource) {
     // Create li element
     const li = document.createElement('li');
     li.className = 'collection-item';
 
     const label = document.createElement('label');
+    label.className = 'checkbox-wrapper';
+
+    const span = document.createElement('span');
+    span.className = 'checkbox-helper';
 
     // Create new check box element and append to li
     const checkBox = document.createElement('input');
@@ -38,14 +82,14 @@ function createTaskListItem(textSource) {
     checkBox.className = 'completed filled-in';
 
     label.appendChild(checkBox);
+    label.appendChild(span);
+    li.appendChild(label);
 
     // Create text node in a span element and append to label
-    const span = document.createElement('span');
-    span.className = 'task-text';
-    span.appendChild(document.createTextNode(textSource));
-    label.appendChild(span);
-
-    li.appendChild(label);
+    const para = document.createElement('p');
+    para.className = 'task-text';
+    para.appendChild(document.createTextNode(textSource));
+    li.appendChild(para);
 
     // Create new edit link element
     const editLink = document.createElement('a');
@@ -196,6 +240,47 @@ if (document.querySelector('.completed').checked) {
 } else {
     alert('NOT CHECKED');
 }
+
+
+
+const myList = document.getElementById("myList");
+
+myList.addEventListener("click", function (e) {
+    const target = e.target;
+
+    if(target.matches("li")) {
+        target.style.backgroundColor = "red";
+    }
+})
+
+
+if (e.target.parentElement.classList.contains('delete-item')) {
+        if (confirm('Are you sure you want to delete this task?')) {
+            e.target.parentElement.parentElement.remove();
+
+            // Remove from Local Storage
+            removeTaskFromLocalStorage(e.target.parentElement.parentElement.firstElementChild.firstElementChild.nextElementSibling);
+        }
+    } else if (e.target.parentElement.classList.contains('edit-item')) {
+        e.target.parentElement.previousElementSibling.lastElementChild.contentEditable = true;
+        // change icons to "save" and "cancel"
+    } else if (e.target.classList.contains('completed') && e.target.checked === true ) {
+        // Add checked to item in Local Storage
+    } else if (e.target.classList.contains('save') {
+        // replace old text with new text in UI and in Local Storage
+    } else if (e.target.classList.contains('cancel') {
+        // keep old text in UI and in Local Storage
+    }
+
+
+function taskItemClicked (e) {
+    const target = e.target;
+    delete --- edit --- completed
+
+}
+
+
+
 
 
 

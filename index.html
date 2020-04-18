@@ -12,11 +12,16 @@
   <style>
     li.collection-item {
       display: grid;
-      grid-template-columns: 7fr 1.5fr 1.5fr;
+      grid-template-columns: .7fr 7fr 1.5fr 1.5fr;
     }
     
-    label {
-      color: #767676;
+    label.checkbox-wrapper {
+      /* color: #767676; */
+      display: grid;
+    }
+    
+    span.checkbox-helper {
+      margin-top: 6px;
     }
     /* label input.completed[type='checkbox']:checked+span { 
   text-decoration-line: line-through;
