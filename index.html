@@ -16,29 +16,53 @@
     }
     
     label.checkbox-wrapper {
-      /* color: #767676; */
       display: grid;
     }
     
     span.checkbox-helper {
       margin-top: 6px;
     }
-    /* label input.completed[type='checkbox']:checked+span { 
+    /* .line-thru { 
   text-decoration-line: line-through;
   text-decoration-color: red;
-}
-*/
+} */
     
     .task-text {
       margin: 5px;
       font-weight: 600;
+      color: #767676;
     }
     
     .edit-item,
-    .delete-item {
+    .delete-item,
+    .update-btn,
+    .cancel-btn {
       justify-self: end;
       align-self: center;
       margin-right: 0 !important;
+    }
+    /* .update-btn,
+    .cancel-btn {
+      max-width: 90%;
+      padding: 0;
+      margin-left: .5em;
+    } */
+    
+    .update-btn {
+      background-color: #26a69a;
+    }
+    
+    .update-btn:hover {
+      background-color: #2bbbad;
+    }
+    
+    .cancel-btn {
+      background-color: #ffab40;
+      /* #bb2b2b; */
+    }
+    
+    .cancel-btn:hover {
+      background-color: #ffc06d;
     }
   </style>
 </head>
