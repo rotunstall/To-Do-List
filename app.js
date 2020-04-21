@@ -1,4 +1,4 @@
-// Define UI Vars
+// DEFINE UI Vars
 const form = document.querySelector('#task-form');
 const taskList = document.querySelector('.collection');
 const clearBtn = document.querySelector('.clear-tasks');
@@ -7,31 +7,139 @@ const taskInput = document.querySelector('#task');
 const editItem = document.querySelector('.edit-item');
 const completed = document.querySelector('.completed');
 
-// Load all event listeners
+// LOAD all event listeners
 loadEventListeners();
 
-// Load all event listeners
+// LOAD all event listeners
 function loadEventListeners() {
     // DOM load event
     document.addEventListener('DOMContentLoaded', getTasks);
-    // Add task event
+    // ADD task event
     form.addEventListener('submit', addTask);
-    // Remove task event    removeTask
-    taskList.addEventListener('click', taskItemClicked);
-    // Clear task event  
+    // All click events on the li
+    taskList.addEventListener('click', whenTaskItemLiIsClicked);
+    // CLEAR task event  
     clearBtn.addEventListener('click', clearTasks);
-    // Filter task event
+    // FILTER task event
     filter.addEventListener('keyup', filterTasks);
-    // Edit task event
-    // editItem.addEventListener('click', editTask);
+
 }
 
+let origTextEdit;
+let origTextCheck;
+let origTextUpdate;
 
-function taskItemClicked(e) {
-    // const target = e.target;
-    //delete --- edit-- - completed
-    // console.log(e);
+let currentLiIcons;
+let currentLiUpdate;
+let currentLiPara;
+let currentLiCheck;
 
+
+function whenTaskItemLiIsClicked(e) {
+    // ASSIGN value to needed variables
+    (function() {
+
+        if (e.target.parentElement.classList.contains('edit-item')) {
+            return (origTextEdit = e.target.parentElement.previousElementSibling.textContent);
+        }
+
+        if (e.target.parentElement.classList.contains('update-btn')) {
+            return (origTextUpdate = e.target.parentElement.parentElement.firstElementChild.nextElementSibling.textContent);
+        }
+
+        if (e.target.classList.contains('completed')) {
+            return (origTextCheck = e.target.parentElement.nextElementSibling.textContent);
+        }
+    })();
+
+    // ASSIGN value to needed variables
+    (function() {
+
+        if (e.target.parentElement.classList.contains('edit-item')) {
+            return (currentLiIcons = e.target.parentElement.parentElement);
+        }
+
+        if (e.target.parentElement.classList.contains('update-btn')) {
+            return (currentLiUpdate = e.target.parentElement.parentElement);
+
+        }
+
+        if (e.target.classList.contains('task-text')) {
+            return (currentLiPara = e.target.parentElement);
+        }
+
+        if (e.target.parentElement.classList.contains('completed')) {
+            return (currentLiCheck = e.target.parentElement.parentElement);
+        }
+    })();
+
+
+    if (e.target.parentElement.classList.contains('edit-item')) {
+        // MAKE task-text editable and focused immediately after clicking "EDIT" button
+        const currentTaskElem = e.target.parentElement.previousElementSibling;
+        currentTaskElem.contentEditable = true;
+        e.target.parentElement.previousElementSibling.focus();
+
+        // CHANGE the "EDIT" and "DELETE" buttons to "SAVE" and "CANCEL" buttons respectively
+        const currentLi = e.target.parentElement.parentElement;
+
+        // CREATE "UPDATE" and "CANCEL" buttons
+        const updateBtn = document.createElement('a');
+        updateBtn.className = 'btn-floating btn-small waves-effect waves-light  update-btn';
+        updateBtn.innerHTML = '<i class="material-icons">add</i>';
+        const cancelBtn = document.createElement('a');
+        cancelBtn.className = 'btn-floating btn-small waves-effect waves-light cancel-btn';
+        cancelBtn.innerHTML = '<i class="material-icons">remove</i>';
+
+        // HIDE "EDIT" and "DELETE" buttons
+        currentLi.lastChild.previousElementSibling.style.display = "none";
+        currentLi.lastChild.style.display = "none";
+
+        // ADD "UPDATE" and "CANCEL" buttons to UI
+        currentLi.appendChild(updateBtn);
+        currentLi.appendChild(cancelBtn);
+
+    } else if (e.target.parentElement.classList.contains('cancel-btn')) {
+        // UNDO changes when the "CANCEL button" is clicked
+        let replaceLi = 'replaceLi';
+        createTaskListItem(origTextEdit, replaceLi, currentLiIcons);
+
+    } else if (e.target.parentElement.classList.contains('update-btn')) {
+        // MAKE task-text not editable, not focused remove inline style attribute from "Edit"and "Delete" buttons immediately after clicking "UPDATE" button
+
+        const currentTaskElem = e.target.parentElement.parentElement.firstElementChild.nextElementSibling;
+        currentTaskElem.contentEditable = false;
+        currentTaskElem.blur();
+        e.target.parentElement.previousElementSibling.removeAttribute('style');
+        e.target.parentElement.previousElementSibling.previousElementSibling.removeAttribute('style');
+
+        // UPDATE Local Storage after clicking "UPDATE" button
+        let newLiArr = [...taskList.children];
+        let newLocalStorageArr = [];
+        for (let i = 0; i < newLiArr.length; i++) {
+            let newerTask = newLiArr[i].firstElementChild.nextElementSibling.textContent;
+            newLocalStorageArr.push(newerTask);
+        }
+        localStorage.setItem('tasks', JSON.stringify(newLocalStorageArr));
+
+
+        // REMOVE "UPDATE" and "CANCEL" buttons from UI
+        // DO THIS LAST!!!!!! after clicking on "UPDATE" button
+        e.target.parentElement.nextElementSibling.remove();
+        e.target.parentElement.remove();
+    }
+
+    // -------------------------------------------------------------
+    // -------------------------------------------------------------
+
+    // disable all clicking except currentsave, currentcancel, currenttask-text until currentsave or currentcancel has been clicked
+
+    // Add checked to item in Local Storage
+
+    // -------------------------------------------------------------
+    // -------------------------------------------------------------
+
+    // REMOVE list item when "delete" icon is clicked
     if (e.target.parentElement.classList.contains('delete-item')) {
         if (confirm('Are you sure you want to delete this task?')) {
             e.target.parentElement.parentElement.remove();
@@ -39,36 +147,16 @@ function taskItemClicked(e) {
             // Remove from Local Storage
             removeTaskFromLocalStorage(e.target.parentElement.parentElement.firstElementChild.nextElementSibling);
         }
-    } else if (e.target.parentElement.classList.contains('edit-item')) {
-
-        const currentText = e.target.parentElement.previousElementSibling;
-        currentText.contentEditable = true;
-        const currentLi = e.target.parentElement.parentElement;
-        const currentEditA = e.target.parentElement;
-        const currentDeleteA = e.target.parentElement.nextElementSibling;
-        console.log(currentText);
-        currentText.addEventListener('click', function(e) {
-            const updateBtn = document.createElement('a');
-            updateBtn.className = 'waves-effect waves-light btn update-btn';
-            updateBtn.textContent = 'UPDATE';
-            console.log(updateBtn);
-            currentLi.replaceChild(updateBtn, currentEditA);
-        });
-        // change icons to "save" and "cancel"
-    } else if ((e.target.classList.contains('completed')) && (e.target.checked === true)) {
-        // Add checked to item in Local Storage
-    } else if (e.target.classList.contains('save')) {
-        // replace old text with new text in UI and in Local Storage
-    } else if (e.target.classList.contains('cancel')) {
-        // keep old text in UI and in Local Storage
     }
 }
 
 
-function createTaskListItem(textSource) {
-    // Create li element
-    const li = document.createElement('li');
-    li.className = 'collection-item';
+
+
+function createTaskListItem(textSource, placementMethod, origLiLocation) {
+    // CREATE li element, label element, span element, input:checkbox element, and Append to li
+    const newLi = document.createElement('li');
+    newLi.className = 'collection-item';
 
     const label = document.createElement('label');
     label.className = 'checkbox-wrapper';
@@ -76,43 +164,43 @@ function createTaskListItem(textSource) {
     const span = document.createElement('span');
     span.className = 'checkbox-helper';
 
-    // Create new check box element and append to li
-    const checkBox = document.createElement('input');
-    checkBox.type = 'checkbox';
-    checkBox.className = 'completed filled-in';
+    const inputCheck = document.createElement('input');
+    inputCheck.type = 'checkbox';
+    inputCheck.className = 'completed filled-in';
 
-    label.appendChild(checkBox);
+    label.appendChild(inputCheck);
     label.appendChild(span);
-    li.appendChild(label);
+    newLi.appendChild(label);
 
-    // Create text node in a span element and append to label
+    // CREATE text node in a paragraph element with text content and append to label
     const para = document.createElement('p');
     para.className = 'task-text';
     para.appendChild(document.createTextNode(textSource));
-    li.appendChild(para);
+    newLi.appendChild(para);
 
-    // Create new edit link element
+    // CREATE  "edit" link element
     const editLink = document.createElement('a');
     editLink.className = 'edit-item';
     editLink.innerHTML = '<i class="small material-icons">edit</i>';
-    li.appendChild(editLink);
+    newLi.appendChild(editLink);
 
-    // Create new link element
+    // CREATE "delete" link element
     const link = document.createElement('a');
     link.className = 'delete-item';
     link.innerHTML = '<i class="small material-icons">delete</i>';
-    li.appendChild(link);
+    newLi.appendChild(link);
 
-    // Append the li to ul
-    taskList.appendChild(li);
-
-
+    // APPEND the li in the ul
+    if (placementMethod === 'addOn') {
+        taskList.appendChild(newLi)
+    } else {
+        //replaceCurrentListItem
+        origLiLocation.parentElement.replaceChild(newLi, origLiLocation)
+    }
 }
 
 
-
-
-// Get Task from Local Storage
+// GET task from Local Storage(function) and CREATE task in the UI(called)
 function getTasks() {
     let tasks;
     if (localStorage.getItem('tasks') === null) {
@@ -120,18 +208,19 @@ function getTasks() {
     } else {
         tasks = JSON.parse(localStorage.getItem('tasks'));
     }
-
+    let addOn = 'addOn';
     tasks.forEach(function(task) {
-        createTaskListItem(task);
+        createTaskListItem(task, addOn);
     });
 }
 
-//Add Task
+// VALIDATE entry, CREATE task in the UI(called) and STORE task in Local Storage(called)
 function addTask(e) {
     if (taskInput.value === '') {
         alert('Add a task, please.');
     } else {
-        createTaskListItem(taskInput.value);
+        let addOn = "addOn";
+        createTaskListItem(taskInput.value, addOn);
         // Store in Local Storage
         storeTaskInLocalStorage(taskInput.value);
         // Clear input field
@@ -140,19 +229,7 @@ function addTask(e) {
     e.preventDefault();
 }
 
-//Edit Task
-function editTask() {
-    // let li = e.target.parentElement;
-    //console.log(editItem);
-
-    //  .contentEditable = true;
-    const completed = document.querySelector('.completed');
-    completed.setAttribute("checked", "checked");
-
-    // e.preventDefault();
-}
-
-// Store Task
+// STORE task to Local Storage(function)
 function storeTaskInLocalStorage(task) {
     let tasks;
     if (localStorage.getItem('tasks') === null) {
@@ -165,19 +242,7 @@ function storeTaskInLocalStorage(task) {
     localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
-// Remove Task
-function removeTask(e) {
-    if (e.target.parentElement.classList.contains('delete-item')) {
-        if (confirm('Are you sure you want to delete this task?')) {
-            e.target.parentElement.parentElement.remove();
-
-            // Remove from Local Storage
-            removeTaskFromLocalStorage(e.target.parentElement.parentElement.firstElementChild.firstElementChild.nextElementSibling);
-        }
-    }
-}
-
-// Remove from localStorage
+// REMOVE task from Local Storage(function)
 function removeTaskFromLocalStorage(taskItem) {
     let tasks;
     if (localStorage.getItem('tasks') === null) {
@@ -191,11 +256,10 @@ function removeTaskFromLocalStorage(taskItem) {
             tasks.splice(index, 1);
         }
     });
-
     localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
-// Clear All Tasks
+// CLEAR all tasks from UI(function) and Local Storage(function & call)
 function clearTasks() {
     // taskList.innerHTML = '';
 
@@ -211,18 +275,16 @@ function clearTasks() {
     function clearTasksFromLocalStorage() {
         localStorage.clear();
     }
-
-    // https://jsperf.com/innerhtml-vs-removechild
 }
 
-// Filter Tasks
+// FILTER tasks(function)
 function filterTasks(e) {
     const text = e.target.value.toLowerCase();
 
     document.querySelectorAll('.collection-item').forEach(function(task) {
-        const item = task.firstChild.textContent;
+        const item = task.firstChild.nextElementSibling.textContent;
         if (item.toLowerCase().indexOf(text) != -1) {
-            task.style.display = 'block';
+            task.style.display = 'grid';
         } else {
             task.style.display = 'none';
         }
@@ -231,56 +293,8 @@ function filterTasks(e) {
 
 
 
-
-
-/*
-when item is checked add the attribute [checked="checked"]
-if (document.querySelector('.completed').checked) {
-    alert('checked - checked');
-} else {
-    alert('NOT CHECKED');
-}
-
-
-
-const myList = document.getElementById("myList");
-
-myList.addEventListener("click", function (e) {
-    const target = e.target;
-
-    if(target.matches("li")) {
-        target.style.backgroundColor = "red";
-    }
-})
-
-
-if (e.target.parentElement.classList.contains('delete-item')) {
-        if (confirm('Are you sure you want to delete this task?')) {
-            e.target.parentElement.parentElement.remove();
-
-            // Remove from Local Storage
-            removeTaskFromLocalStorage(e.target.parentElement.parentElement.firstElementChild.firstElementChild.nextElementSibling);
-        }
-    } else if (e.target.parentElement.classList.contains('edit-item')) {
-        e.target.parentElement.previousElementSibling.lastElementChild.contentEditable = true;
-        // change icons to "save" and "cancel"
-    } else if (e.target.classList.contains('completed') && e.target.checked === true ) {
-        // Add checked to item in Local Storage
-    } else if (e.target.classList.contains('save') {
-        // replace old text with new text in UI and in Local Storage
-    } else if (e.target.classList.contains('cancel') {
-        // keep old text in UI and in Local Storage
-    }
-
-
-function taskItemClicked (e) {
-    const target = e.target;
-    delete --- edit --- completed
-
-}
-
-
-
+// https://jsperf.com/innerhtml-vs-removechild
+/* SUDO CODE
 
 
 
