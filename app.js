@@ -17,7 +17,7 @@ function loadEventListeners() {
     // ADD task event
     form.addEventListener('submit', addTask);
     // All click events on the li
-    taskList.addEventListener('click', whenTaskItemLiIsClicked);
+    //taskList.addEventListener('click', whenTaskItemLiIsClicked);
     // CLEAR task event  
     clearBtn.addEventListener('click', clearTasks);
     // FILTER task event
@@ -34,9 +34,45 @@ let currentLiUpdate;
 let currentLiPara;
 let currentLiCheck;
 
+/*(function() {
 
-function whenTaskItemLiIsClicked(e) {
-    // ASSIGN value to needed variables
+    if (e.target.parentElement.classList.contains('edit-item')) {
+        return (origTextEdit = e.target.parentElement.previousElementSibling.textContent);
+    }
+
+    if (e.target.parentElement.classList.contains('update-btn')) {
+        return (origTextUpdate = e.target.parentElement.parentElement.firstElementChild.nextElementSibling.textContent);
+    }
+
+    if (e.target.classList.contains('completed')) {
+        return (origTextCheck = e.target.parentElement.nextElementSibling.textContent);
+    }
+})();
+
+// ASSIGN value to needed variables
+(function() {
+
+    if (e.target.parentElement.classList.contains('edit-item')) {
+        return (currentLiIcons = e.target.parentElement.parentElement);
+    }
+
+    if (e.target.parentElement.classList.contains('update-btn')) {
+        return (currentLiUpdate = e.target.parentElement.parentElement);
+
+    }
+
+    if (e.target.classList.contains('task-text')) {
+        return (currentLiPara = e.target.parentElement);
+    }
+
+    if (e.target.parentElement.classList.contains('completed')) {
+        return (currentLiCheck = e.target.parentElement.parentElement);
+    }
+})();*/
+
+
+/*function whenTaskItemLiIsClicked(e) {
+    ASSIGN value to needed variables
     (function() {
 
         if (e.target.parentElement.classList.contains('edit-item')) {
@@ -73,73 +109,136 @@ function whenTaskItemLiIsClicked(e) {
         }
     })();
 
+    /*
+        if (e.target.parentElement.classList.contains('edit-item')) {
+            
+            // MAKE task-text editable and focused immediately after clicking "EDIT" button
+            const currentTaskElem = e.target.parentElement.previousElementSibling;
+            currentTaskElem.contentEditable = true;
+            e.target.parentElement.previousElementSibling.focus();
 
-    if (e.target.parentElement.classList.contains('edit-item')) {
-        // MAKE task-text editable and focused immediately after clicking "EDIT" button
-        const currentTaskElem = e.target.parentElement.previousElementSibling;
-        currentTaskElem.contentEditable = true;
-        e.target.parentElement.previousElementSibling.focus();
+            // CHANGE the "EDIT" and "DELETE" buttons to "SAVE" and "CANCEL" buttons respectively
+            const currentLi = e.target.parentElement.parentElement;
 
-        // CHANGE the "EDIT" and "DELETE" buttons to "SAVE" and "CANCEL" buttons respectively
-        const currentLi = e.target.parentElement.parentElement;
+            // CREATE "UPDATE" and "CANCEL" buttons
+            const updateBtn = document.createElement('a');
+            updateBtn.className = 'btn-floating btn-small waves-effect waves-light  update-btn';
+            updateBtn.innerHTML = '<i class="material-icons">add</i>';
+            updateBtn.onClick = updateBtnAction();
+            const cancelBtn = document.createElement('a');
+            cancelBtn.className = 'btn-floating btn-small waves-effect waves-light cancel-btn';
+            cancelBtn.innerHTML = '<i class="material-icons">remove</i>';
 
-        // CREATE "UPDATE" and "CANCEL" buttons
-        const updateBtn = document.createElement('a');
-        updateBtn.className = 'btn-floating btn-small waves-effect waves-light  update-btn';
-        updateBtn.innerHTML = '<i class="material-icons">add</i>';
-        const cancelBtn = document.createElement('a');
-        cancelBtn.className = 'btn-floating btn-small waves-effect waves-light cancel-btn';
-        cancelBtn.innerHTML = '<i class="material-icons">remove</i>';
+            // HIDE "EDIT" and "DELETE" buttons
+            currentLi.lastChild.previousElementSibling.style.display = "none";
+            currentLi.lastChild.style.display = "none";
 
-        // HIDE "EDIT" and "DELETE" buttons
-        currentLi.lastChild.previousElementSibling.style.display = "none";
-        currentLi.lastChild.style.display = "none";
+            // ADD "UPDATE" and "CANCEL" buttons to UI
+            currentLi.appendChild(updateBtn);
+            currentLi.appendChild(cancelBtn);
+            
 
-        // ADD "UPDATE" and "CANCEL" buttons to UI
-        currentLi.appendChild(updateBtn);
-        currentLi.appendChild(cancelBtn);
+        } else if (e.target.parentElement.classList.contains('cancel-btn')) {
+            
+            // UNDO changes when the "CANCEL button" is clicked
+            let replaceLi = 'replaceLi';
+            createTaskListItem(origTextEdit, replaceLi, currentLiIcons);
+            
 
-    } else if (e.target.parentElement.classList.contains('cancel-btn')) {
-        // UNDO changes when the "CANCEL button" is clicked
-        let replaceLi = 'replaceLi';
-        createTaskListItem(origTextEdit, replaceLi, currentLiIcons);
+        } else if (e.target.parentElement.classList.contains('update-btn')) {
+            
+            // MAKE task-text not editable, not focused remove inline style attribute from "Edit"and "Delete" buttons immediately after clicking "UPDATE" button
 
-    } else if (e.target.parentElement.classList.contains('update-btn')) {
-        // MAKE task-text not editable, not focused remove inline style attribute from "Edit"and "Delete" buttons immediately after clicking "UPDATE" button
+            const currentTaskElem = e.target.parentElement.parentElement.firstElementChild.nextElementSibling;
+            currentTaskElem.contentEditable = false;
+            currentTaskElem.blur();
+            e.target.parentElement.previousElementSibling.removeAttribute('style');
+            e.target.parentElement.previousElementSibling.previousElementSibling.removeAttribute('style');
 
-        const currentTaskElem = e.target.parentElement.parentElement.firstElementChild.nextElementSibling;
-        currentTaskElem.contentEditable = false;
-        currentTaskElem.blur();
-        e.target.parentElement.previousElementSibling.removeAttribute('style');
-        e.target.parentElement.previousElementSibling.previousElementSibling.removeAttribute('style');
+            // UPDATE Local Storage after clicking "UPDATE" button
+            let newLiArr = [...taskList.children];
+            let newLocalStorageArr = [];
 
-        // UPDATE Local Storage after clicking "UPDATE" button
-        let newLiArr = [...taskList.children];
-        let newLocalStorageArr = [];
-        for (let i = 0; i < newLiArr.length; i++) {
-            let newerTask = newLiArr[i].firstElementChild.nextElementSibling.textContent;
-            newLocalStorageArr.push(newerTask);
+            for (let newerTask of newLiArr) {
+                newerTask = newerTask.firstElementChild.nextElementSibling.textContent;
+                newLocalStorageArr.push(newerTask);
+            }
+            localStorage.setItem('tasks', JSON.stringify(newLocalStorageArr));
+
+            // REMOVE "UPDATE" and "CANCEL" buttons from UI
+            // DO THIS LAST!!!!!! after clicking on "UPDATE" button
+            e.target.parentElement.nextElementSibling.remove();
+            e.target.parentElement.remove();
         }
-        localStorage.setItem('tasks', JSON.stringify(newLocalStorageArr));
+        
+
+        // -------------------------------------------------------------
+        // -------------------------------------------------------------
+        /*
+        // GET checkBox status
+        if (e.target.classList.contains('completed')) {
+            console.log(e);
+            let checkBoxStatus = e.target.checked;
+            console.log(checkBoxStatus);
+        }
+
+        function disableAllExceptLi() {
+            taskInput.disabled = true;
+            addTaskBtn.disabled = true;
+            filter.disabled = true;
+            clearBtn.disabled = true;
+        }
+
+        function undisableAllExceptLi() {
+            taskInput.disabled = false;
+            addTaskBtn.disabled = false;
+            filter.disabled = false;
+            clearBtn.disabled = false;
+        }
 
 
-        // REMOVE "UPDATE" and "CANCEL" buttons from UI
-        // DO THIS LAST!!!!!! after clicking on "UPDATE" button
-        e.target.parentElement.nextElementSibling.remove();
-        e.target.parentElement.remove();
-    }
+        function disableAllTasksAbilitiesExceptActiveLi() {
+            completed.disabled = true;
+            taskText.disabled = true;
+            editItem.disabled = true;
+            deleteItem.disabled = true;
+            updateBtn.disabled = true;
+            cancelBtn.disabled = true;
+        }
 
-    // -------------------------------------------------------------
-    // -------------------------------------------------------------
+        function undisableAllTasksAbilitiesExceptActiveLi() {
+            completed.disabled = false;
+            taskText.disabled = false;
+            editItem.disabled = false;
+            deleteItem.disabled = false;
+            updateBtn.disabled = false;
+            cancelBtn.disabled = false;
+        }
 
-    // disable all clicking except currentsave, currentcancel, currenttask-text until currentsave or currentcancel has been clicked
 
-    // Add checked to item in Local Storage
+        const form = document.querySelector('#task-form');
+        const taskInput = document.querySelector('#task');
+        const addTaskBtn = document.querySelector('.addTask-btn')
+        const filter = document.querySelector('#filter');
 
-    // -------------------------------------------------------------
-    // -------------------------------------------------------------
+        const taskList = document.querySelector('.collection');
+        const completed = document.querySelector('.completed');
+        const taskText = document.querySelector('.task-text');
+        const editItem = document.querySelector('.edit-item');
+        const deleteItem = document.querySelector('.delete-item');
+        const updateBtn = document.querySelector('.update-btn');
+        const cancelBtn = document.querySelector('.cancel-btn');
 
-    // REMOVE list item when "delete" icon is clicked
+        const clearBtn = document.querySelector('.clear-tasks');
+        // disable all clicking except currentsave, currentcancel, currenttask-text until currentsave or currentcancel has been clicked
+
+        // Add checked to item in Local Storage
+    */
+// -------------------------------------------------------------
+// -------------------------------------------------------------
+
+// REMOVE list item when "delete" icon is clicked
+/*   
     if (e.target.parentElement.classList.contains('delete-item')) {
         if (confirm('Are you sure you want to delete this task?')) {
             e.target.parentElement.parentElement.remove();
@@ -148,8 +247,22 @@ function whenTaskItemLiIsClicked(e) {
             removeTaskFromLocalStorage(e.target.parentElement.parentElement.firstElementChild.nextElementSibling);
         }
     }
-}
+    */
 
+// VALIDATE entry, CREATE task in the UI(called) and STORE task in Local Storage(called)
+function addTask(e) {
+    if (taskInput.value === '') {
+        alert('Add a task, please.');
+    } else {
+        let addOn = "addOn";
+        createTaskListItem(taskInput.value, addOn);
+        // Store in Local Storage
+        storeTaskInLocalStorage(taskInput.value);
+        // Clear input field
+        taskInput.value = '';
+    }
+    e.preventDefault();
+}
 
 
 
@@ -182,13 +295,15 @@ function createTaskListItem(textSource, placementMethod, origLiLocation) {
     const editLink = document.createElement('a');
     editLink.className = 'edit-item';
     editLink.innerHTML = '<i class="small material-icons">edit</i>';
+    editLink.onClick = editLinkAction;
     newLi.appendChild(editLink);
 
     // CREATE "delete" link element
-    const link = document.createElement('a');
-    link.className = 'delete-item';
-    link.innerHTML = '<i class="small material-icons">delete</i>';
-    newLi.appendChild(link);
+    const deleteLink = document.createElement('a');
+    deleteLink.className = 'delete-item';
+    deleteLink.innerHTML = '<i class="small material-icons">delete</i>';
+    deleteLink.onClick = deleteLinkAction;
+    newLi.appendChild(deleteLink);
 
     // APPEND the li in the ul
     if (placementMethod === 'addOn') {
@@ -197,6 +312,88 @@ function createTaskListItem(textSource, placementMethod, origLiLocation) {
         //replaceCurrentListItem
         origLiLocation.parentElement.replaceChild(newLi, origLiLocation)
     }
+}
+
+
+// ++++++++++++++++++++++++++++++++++++++
+// ++++++++++++++++++++++++++++++++++++++
+// ++++++++++++++++++++++++++++++++++++++
+// ++++++++++++++++++++++++++++++++++++++
+// ++++++++++++++++++++++++++++++++++++++
+
+function editLinkAction(e) {
+    // MAKE task-text editable and focused immediately after clicking "EDIT" button
+    console.log(e.target);
+    const currentTaskElem = e.target.previousElementSibling;
+    currentTaskElem.contentEditable = true;
+    e.target.previousElementSibling.focus();
+
+    // CHANGE the "EDIT" and "DELETE" buttons to "SAVE" and "CANCEL" buttons respectively
+    const currentLi = e.target.parentElement.parentElement;
+
+    // CREATE "UPDATE" and "CANCEL" buttons
+    const updateBtn = document.createElement('a');
+    updateBtn.className = 'btn-floating btn-small waves-effect waves-light  update-btn';
+    updateBtn.innerHTML = '<i class="material-icons">add</i>';
+    updateBtn.onClick = updateBtnAction;
+    const cancelBtn = document.createElement('a');
+    cancelBtn.className = 'btn-floating btn-small waves-effect waves-light cancel-btn';
+    cancelBtn.innerHTML = '<i class="material-icons">remove</i>';
+    cancelBtn.onClick = cancelBtnAction;
+
+    // HIDE "EDIT" and "DELETE" buttons
+    currentLi.lastChild.previousElementSibling.style.display = "none";
+    currentLi.lastChild.style.display = "none";
+
+    // ADD "UPDATE" and "CANCEL" buttons to UI
+    currentLi.appendChild(updateBtn);
+    currentLi.appendChild(cancelBtn);
+
+    //e.preventDefault();
+}
+
+function deleteLinkAction(e) {
+    if (confirm('Are you sure you want to delete this task?')) {
+        e.target.parentElement.parentElement.remove();
+
+        // Remove from Local Storage
+        removeTaskFromLocalStorage(e.target.parentElement.parentElement.firstElementChild.nextElementSibling);
+    }
+    e.preventDefault();
+}
+
+function updateBtnAction(e) {
+    // MAKE task-text not editable, not focused remove inline style attribute from "Edit"and "Delete" buttons immediately after clicking "UPDATE" button
+
+    const currentTaskElem = e.target.parentElement.parentElement.firstElementChild.nextElementSibling;
+    currentTaskElem.contentEditable = false;
+    currentTaskElem.blur();
+    e.target.parentElement.previousElementSibling.removeAttribute('style');
+    e.target.parentElement.previousElementSibling.previousElementSibling.removeAttribute('style');
+
+    // UPDATE Local Storage after clicking "UPDATE" button
+    let newLiArr = [...taskList.children];
+    let newLocalStorageArr = [];
+
+    for (let newerTask of newLiArr) {
+        newerTask = newerTask.firstElementChild.nextElementSibling.textContent;
+        newLocalStorageArr.push(newerTask);
+    }
+    localStorage.setItem('tasks', JSON.stringify(newLocalStorageArr));
+
+    // REMOVE "UPDATE" and "CANCEL" buttons from UI
+    // DO THIS LAST!!!!!! after clicking on "UPDATE" button
+    e.target.parentElement.nextElementSibling.remove();
+    e.target.parentElement.remove();
+
+    e.preventDefault();
+}
+
+function cancelBtnAction(e) {
+    let replaceLi = 'replaceLi';
+    createTaskListItem(origTextEdit, replaceLi, currentLiIcons);
+
+    e.preventDefault();
 }
 
 
@@ -214,20 +411,7 @@ function getTasks() {
     });
 }
 
-// VALIDATE entry, CREATE task in the UI(called) and STORE task in Local Storage(called)
-function addTask(e) {
-    if (taskInput.value === '') {
-        alert('Add a task, please.');
-    } else {
-        let addOn = "addOn";
-        createTaskListItem(taskInput.value, addOn);
-        // Store in Local Storage
-        storeTaskInLocalStorage(taskInput.value);
-        // Clear input field
-        taskInput.value = '';
-    }
-    e.preventDefault();
-}
+
 
 // STORE task to Local Storage(function)
 function storeTaskInLocalStorage(task) {
