@@ -173,6 +173,8 @@ function storeTaskInLocalStorage(newLSArrOfObjects) {
 function checkBoxAction(e) {
     if (e.target.checked === true) {
         e.target.parentElement.nextElementSibling.classList.add("line-through");
+    } else {
+        e.target.parentElement.nextElementSibling.classList.remove("line-through");
     }
     // UPDATE in Local Storage
     let updatedLiArr = [...taskList.children];
