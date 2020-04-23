@@ -170,7 +170,10 @@ function storeTaskInLocalStorage(newLSArrOfObjects) {
 
 
 // UPDATE checkBox status
-function checkBoxAction() {
+function checkBoxAction(e) {
+    if (e.target.checked === true) {
+        e.target.parentElement.nextElementSibling.classList.add("line-through");
+    }
     // UPDATE in Local Storage
     let updatedLiArr = [...taskList.children];
     updatedLiArr = createArrObjFromUi(updatedLiArr);
@@ -344,7 +347,7 @@ function clearTasks() {
 
 
 /* SUDO CODE
-
+When checkBox is check for completed --- text color red and strikethrough
 
 
 */
