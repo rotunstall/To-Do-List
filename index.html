@@ -15,6 +15,10 @@
       grid-template-columns: .7fr 7fr 1.5fr 1.5fr;
     }
     
+    .completed-label-box {
+      margin: 0 50px 10px 20px;
+    }
+    
     label.checkbox-wrapper {
       display: grid;
     }
@@ -92,6 +96,14 @@
               <input type="text" name="filter" id="filter" />
               <label for="filter">Filter Tasks</label>
             </div>
+            <label class="completed-label-box">
+              <input type="checkbox" class="filled-in completed-sorter" >
+              <span class="checkbox-helper">Show Completed Tasks Only</span>
+            </label>
+            <label class="incompleted-label-box">
+              <input type="checkbox" class="filled-in incompleted-sorter">
+              <span class="checkbox-helper">Show Incompleted Tasks Only</span>
+            </label>
             <ul class="collection"></ul>
             <a href="#" class="clear-tasks btn black">Clear Tasks</a>
           </div>

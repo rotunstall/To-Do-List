@@ -5,6 +5,8 @@ const clearBtn = document.querySelector('.clear-tasks');
 const filter = document.querySelector('#filter');
 const taskInput = document.querySelector('#task');
 const addTaskBtn = document.querySelector('.addTask-btn');
+const completedSorter = document.querySelector('.completed-sorter');
+const incompletedSorter = document.querySelector('.incompleted-sorter');
 
 // LOAD all event listeners
 loadEventListeners();
@@ -16,7 +18,10 @@ function loadEventListeners() {
     form.addEventListener('submit', addTask);
     clearBtn.addEventListener('click', clearTasks);
     filter.addEventListener('keyup', filterTasks);
+    completedSorter.addEventListener('click', filterCompletedTasks);
+    incompletedSorter.addEventListener('click', filterIncompletedTasks);
 }
+
 let taskArr;
 let origTextEdit;
 let origTextUpdate;
@@ -55,7 +60,6 @@ function addTask(e) {
 
         createTaskListItem(taskObj.id, taskObj.checked, taskObj.text);
         createLsTaskArr(taskArr);
-        //console.log(taskArr, ` --- after add task function`);
 
         // Clear input field
         taskInput.value = '';
@@ -93,12 +97,10 @@ function getTasks() {
             checked = task.checked;
             text = task.text;
 
-            //(idNumber, checkboxStatus, textSource, placementMethod, origLiLocation)
+            //(idNumber, checkboxStatus, textSource)
             createTaskListItem(id, checked, text);
-
         });
     }
-    //console.log(taskArr, ` --- after get task function`);
 }
 
 
@@ -127,7 +129,6 @@ function updateTaskArr(currentTargetId, isLsUpdatedToo) {
             });
         };
     });
-    //console.log(taskArr, ` --- after update task function`);
 }
 
 
@@ -178,6 +179,10 @@ function createTaskListItem(idNumber, checkboxStatus, textSource) {
     deleteLink.onclick = deleteLinkAction;
     newLi.appendChild(deleteLink);
     taskList.appendChild(newLi);
+
+    if (checkboxStatus === true) {
+        para.classList.add("line-through");
+    }
 }
 
 
@@ -191,7 +196,6 @@ function checkBoxAction(e) {
 
     let currentid = e.target.parentElement.parentElement.getAttribute('data-id-number');
     updateTaskArr(currentid, true);
-    //console.log(taskArr, ` --- after update checkbox function`);
 }
 
 
@@ -240,7 +244,6 @@ function editLinkAction(e) {
     disableAllExceptLi();
 
     e.preventDefault();
-    //console.log(taskArr, ` --- after edit link function`);
 }
 
 
@@ -265,7 +268,6 @@ function deleteLinkAction(e) {
         });
     }
     storeTaskInLocalStorage(origLsTasks);
-    //console.log(taskArr, ` --- after delete link function`);
     e.preventDefault();
 }
 
@@ -307,7 +309,7 @@ function updateBtnAction(e) {
     // REMOVE "UPDATE" and "CANCEL" buttons from UI
     e.target.parentElement.nextElementSibling.remove();
     e.target.parentElement.remove();
-    //console.log(taskArr, ` --- after update link function`);
+
     e.preventDefault();
 }
 
@@ -349,7 +351,7 @@ function cancelBtnAction(e) {
     // REMOVE "UPDATE" and "CANCEL" buttons from UI
     e.target.parentElement.previousElementSibling.remove();
     e.target.parentElement.remove();
-    //console.log(taskArr, ` --- after cancel link function`);
+
 }
 
 
@@ -377,12 +379,60 @@ function clearTasks() {
     function clearTasksFromLocalStorage() {
         localStorage.clear();
     }
-    //console.log(taskArr, ` --- After clear all tasks`);
+}
+
+
+function filterCompletedTasks(e) {
+    let checkBoxStatus = e.target.checked;
+    let currentLis = document.querySelectorAll('.collection-item')
+    let otherSorter = e.target.parentElement.nextElementSibling.firstElementChild;
+    if (checkBoxStatus) {
+        otherSorter.disabled = true;
+    }
+    currentLis.forEach(function(task) {
+        if (checkBoxStatus) {
+            const checkedResult = task.firstElementChild.firstElementChild.checked;
+            if (checkedResult === true) {
+                task.style.display = 'grid';
+            } else {
+                task.style.display = 'none';
+            }
+        } else {
+            task.style.display = 'grid';
+            otherSorter.disabled = false;
+        }
+    });
+}
+
+function filterIncompletedTasks(e) {
+    let checkBoxStatus = e.target.checked;
+    let currentLis = document.querySelectorAll('.collection-item')
+    let otherSorter = e.target.parentElement.previousElementSibling.firstElementChild;
+    if (checkBoxStatus) {
+        otherSorter.disabled = true;
+    }
+    currentLis.forEach(function(task) {
+        if (checkBoxStatus) {
+            const checkedResult = task.firstElementChild.firstElementChild.checked;
+            if (checkedResult === true) {
+                task.style.display = 'none';
+            } else {
+                task.style.display = 'grid';
+            }
+        } else {
+            task.style.display = 'grid';
+            otherSorter.disabled = false;
+        }
+    });
 }
 
 
 /* SUDO CODE
-complete only and incomplete only
+
+which is better to use:
+    let updatedLiArr = [...taskList.children];
+        or
+    let currentLis = document.querySelectorAll('.collection-item')
 
 
 
