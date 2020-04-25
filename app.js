@@ -6,7 +6,6 @@ const filter = document.querySelector('#filter');
 const taskInput = document.querySelector('#task');
 const addTaskBtn = document.querySelector('.addTask-btn');
 
-
 // LOAD all event listeners
 loadEventListeners();
 
@@ -18,12 +17,11 @@ function loadEventListeners() {
     clearBtn.addEventListener('click', clearTasks);
     filter.addEventListener('keyup', filterTasks);
 }
-
+let taskArr;
 let origTextEdit;
 let origTextUpdate;
 let currentLiIcons;
 let currentLiUpdate;
-
 
 
 // -------------------------------------------------------------
@@ -49,34 +47,101 @@ function addTask(e) {
     if (taskInput.value === '') {
         alert('Add a task, please.');
     } else {
-        let addOn = "addOn";
-        createTaskListItem(false, taskInput.value, addOn);
+        let taskObj = {};
+        taskObj.id = Date.now() + ((Math.random() * 100000).toFixed());
+        taskObj.text = taskInput.value;
+        taskObj.checked = false;
+        taskArr.push(taskObj);
+
+        createTaskListItem(taskObj.id, taskObj.checked, taskObj.text);
+        createLsTaskArr(taskArr);
+        //console.log(taskArr, ` --- after add task function`);
 
         // Clear input field
         taskInput.value = '';
     }
+
     e.preventDefault();
 }
 
 
-function filterTasks(e) {
-    const text = e.target.value.toLowerCase();
+function createLsTaskArr(latestTaskArr) {
+    let lsArrObj = [];
 
-    document.querySelectorAll('.collection-item').forEach(function(task) {
-        const item = task.firstChild.nextElementSibling.textContent;
-        if (item.toLowerCase().indexOf(text) != -1) {
-            task.style.display = 'grid';
-        } else {
-            task.style.display = 'none';
-        }
-    });
+    latestTaskArr.forEach(function(task) {
+        let taskObjLs = {};
+        taskObjLs.id = task.id;
+        taskObjLs.text = task.text;
+        taskObjLs.checked = task.checked;
+        lsArrObj.push(taskObjLs);
+    })
+    storeTaskInLocalStorage(lsArrObj);
 }
 
 
-function createTaskListItem(checkboxStatus, textSource, placementMethod, origLiLocation) {
+function getTasks() {
+    let tasks;
+
+    if (localStorage.getItem('tasks') === null) {
+        tasks = [];
+        taskArr = [];
+    } else {
+        tasks = JSON.parse(localStorage.getItem('tasks'));
+        taskArr = tasks;
+        tasks.forEach(function(task) {
+            id = task.id;
+            checked = task.checked;
+            text = task.text;
+
+            //(idNumber, checkboxStatus, textSource, placementMethod, origLiLocation)
+            createTaskListItem(id, checked, text);
+
+        });
+    }
+    //console.log(taskArr, ` --- after get task function`);
+}
+
+
+function updateTaskArr(currentTargetId, isLsUpdatedToo) {
+    taskArr.forEach(function(origTask) {
+        if (origTask.id === currentTargetId) {
+            let updatedLiArr = [...taskList.children];
+            updatedLiArr.forEach(function(updatedTask) {
+                let updatedLiId = updatedTask.getAttribute('data-id-number');
+                if (updatedLiId === currentTargetId) {
+                    origTask.text = updatedTask.firstElementChild.nextElementSibling.textContent;
+                    origTask.checked = updatedTask.firstElementChild.firstElementChild.checked;
+                    if (isLsUpdatedToo === true) {
+                        //updateLsArr(currentTargetId);
+                        origLsTasks = JSON.parse(localStorage.getItem('tasks'));
+                        origLsTasks.forEach(function(origLsTask) {
+                            if (origLsTask.id === currentTargetId) {
+                                origLsTask.text = origTask.text;
+                                origLsTask.checked = origTask.checked;
+                            }
+
+                            storeTaskInLocalStorage(origLsTasks);
+                        });
+                    }
+                }
+            });
+        };
+    });
+    //console.log(taskArr, ` --- after update task function`);
+}
+
+
+function storeTaskInLocalStorage(newLSArrOfObjects) {
+    localStorage.setItem('tasks', JSON.stringify(newLSArrOfObjects));
+}
+
+
+function createTaskListItem(idNumber, checkboxStatus, textSource) {
 
     const newLi = document.createElement('li');
     newLi.className = 'collection-item';
+    newLi.setAttribute("data-id-number", idNumber)
+
 
     const label = document.createElement('label');
     label.className = 'checkbox-wrapper';
@@ -107,65 +172,12 @@ function createTaskListItem(checkboxStatus, textSource, placementMethod, origLiL
 
     newLi.appendChild(editLink);
 
-
     const deleteLink = document.createElement('a');
     deleteLink.className = 'delete-item';
     deleteLink.innerHTML = '<i class="small material-icons">delete</i>';
     deleteLink.onclick = deleteLinkAction;
     newLi.appendChild(deleteLink);
-
-    // APPEND the li in the ul
-    if (placementMethod === 'addOn') {
-        taskList.appendChild(newLi)
-    } else {
-        //replaceCurrentListItem
-        origLiLocation.parentElement.replaceChild(newLi, origLiLocation)
-    }
-
-
-    let updatedLiArr = [...taskList.children];
-    updatedLiArr = createArrObjFromUi(updatedLiArr);
-    storeTaskInLocalStorage(updatedLiArr);
-}
-
-
-function createArrObjFromUi(newLiArr) {
-
-    let newArrObj = [];
-
-    newLiArr.forEach(function(newTask, index) {
-        checkedResult = newTask.firstElementChild.firstElementChild.checked;
-        newTask = newTask.firstElementChild.nextElementSibling.textContent;
-        let taskObj = {};
-        taskObj.id = index;
-        taskObj.text = newTask;
-        taskObj.checked = checkedResult;
-        newArrObj.push(taskObj);
-    })
-    return newArrObj;
-}
-
-
-function getTasks() {
-    let tasks;
-
-    if (localStorage.getItem('tasks') === null) {
-        tasks = [];
-    } else {
-        tasks = JSON.parse(localStorage.getItem('tasks'));
-
-        let addOn = 'addOn';
-        tasks.forEach(function(task) {
-            checked = task.checked;
-            text = task.text;
-            createTaskListItem(checked, text, addOn);
-        });
-    }
-}
-
-
-function storeTaskInLocalStorage(newLSArrOfObjects) {
-    localStorage.setItem('tasks', JSON.stringify(newLSArrOfObjects));
+    taskList.appendChild(newLi);
 }
 
 
@@ -176,10 +188,10 @@ function checkBoxAction(e) {
     } else {
         e.target.parentElement.nextElementSibling.classList.remove("line-through");
     }
-    // UPDATE in Local Storage
-    let updatedLiArr = [...taskList.children];
-    updatedLiArr = createArrObjFromUi(updatedLiArr);
-    storeTaskInLocalStorage(updatedLiArr);
+
+    let currentid = e.target.parentElement.parentElement.getAttribute('data-id-number');
+    updateTaskArr(currentid, true);
+    //console.log(taskArr, ` --- after update checkbox function`);
 }
 
 
@@ -192,24 +204,8 @@ function editLinkAction(e) {
     currentTaskElem.contentEditable = true;
     e.target.parentElement.previousElementSibling.focus();
 
-
     const currentLi = e.target.parentElement.parentElement;
     currentLi.classList.add("active-li");
-
-
-    let updatedLiArr = [...taskList.children];
-    console.log(updatedLiArr.length);
-
-    for (let i = 0; i < updatedLiArr.length; i++) {
-        if (updatedLiArr[i].classList.contains('active-li')) { continue; }
-        let completed = updatedLiArr[i].querySelector('.completed');
-        let editItem = updatedLiArr[i].querySelector('.edit-item');
-        let deleteItem = updatedLiArr[i].querySelector('.delete-item');
-        completed.disabled = true;
-        editItem.style.display = "none";
-        deleteItem.style.display = "none";
-    }
-    updatedLiArr = createArrObjFromUi(updatedLiArr);
 
     // CHANGE the "EDIT" and "DELETE" buttons to "SAVE" and "CANCEL" buttons respectively
     const updateBtn = document.createElement('a');
@@ -229,27 +225,54 @@ function editLinkAction(e) {
     currentLi.appendChild(updateBtn);
     currentLi.appendChild(cancelBtn);
 
+    let updatedLiArr = [...taskList.children];
+
+    for (let i = 0; i < updatedLiArr.length; i++) {
+        if (updatedLiArr[i].classList.contains('active-li')) { continue; }
+        let completed = updatedLiArr[i].querySelector('.completed');
+        let editItem = updatedLiArr[i].querySelector('.edit-item');
+        let deleteItem = updatedLiArr[i].querySelector('.delete-item');
+        completed.disabled = true;
+        editItem.style.display = "none";
+        deleteItem.style.display = "none";
+    }
+
     disableAllExceptLi();
 
     e.preventDefault();
+    //console.log(taskArr, ` --- after edit link function`);
 }
 
 
 function deleteLinkAction(e) {
     if (confirm('Are you sure you want to delete this task?')) {
 
-        e.target.parentElement.parentElement.remove();
-
-        let updatedLiArr = [...taskList.children];
-        storeTaskInLocalStorage(createArrObjFromUi(updatedLiArr));
+        let currentid = e.target.parentElement.parentElement.getAttribute('data-id-number');
+        // DELETE from Task Array
+        taskArr.forEach(function(origTask) {
+            if (origTask.id === currentid) {
+                taskArr = taskArr.filter(li => li.id != currentid);
+            }
+            // DELETE from UI
+            e.target.parentElement.parentElement.remove();
+        });
+        // DELETE from Local Storage Array
+        origLsTasks = JSON.parse(localStorage.getItem('tasks'));
+        origLsTasks.forEach(function(origLsTask) {
+            if (origLsTask.id === currentid) {
+                origLsTasks = origLsTasks.filter(li => li.id != currentid);
+            }
+        });
     }
+    storeTaskInLocalStorage(origLsTasks);
+    //console.log(taskArr, ` --- after delete link function`);
     e.preventDefault();
 }
 
 
 function updateBtnAction(e) {
 
-    origTextUpdate = e.target.parentElement.parentElement.firstElementChild.nextElementSibling.textContent;
+    // origTextUpdate = e.target.parentElement.parentElement.firstElementChild.nextElementSibling.textContent;
     currentLiUpdate = e.target.parentElement.parentElement;
 
     // MAKE task-text not editable, not focused remove inline style attribute from "Edit"and "Delete" buttons immediately after clicking "UPDATE" button
@@ -260,7 +283,10 @@ function updateBtnAction(e) {
     e.target.parentElement.previousElementSibling.previousElementSibling.removeAttribute('style');
 
     let updatedLiArr = [...taskList.children];
-    storeTaskInLocalStorage(createArrObjFromUi(updatedLiArr));
+    // storeTaskInLocalStorage(createArrObjFromUi(updatedLiArr));
+
+    let currentid = e.target.parentElement.parentElement.getAttribute('data-id-number');
+    updateTaskArr(currentid, true);
 
     undisableAllExceptLi();
 
@@ -281,7 +307,7 @@ function updateBtnAction(e) {
     // REMOVE "UPDATE" and "CANCEL" buttons from UI
     e.target.parentElement.nextElementSibling.remove();
     e.target.parentElement.remove();
-
+    //console.log(taskArr, ` --- after update link function`);
     e.preventDefault();
 }
 
@@ -289,25 +315,15 @@ function updateBtnAction(e) {
 function cancelBtnAction(e) {
 
     let updatedLiArr = [...taskList.children];
-    let taskObj;
     let activeLiPara = document.querySelector('.active-li').firstElementChild.nextElementSibling;
-    let tasks;
-    let origText;
-    // GET the index of the li in the UI that is to be canceled
-    updatedLiArr.forEach(function(newTask, index) {
-            if (newTask.classList.contains('active-li')) {
-                taskObj = index;
-            }
-        })
-        // GET the id of the corresponding object in LocalStorage and replace the text
-    tasks = JSON.parse(localStorage.getItem('tasks'));
+    let currentid = e.target.parentElement.parentElement.getAttribute('data-id-number');
+    let tasks = JSON.parse(localStorage.getItem('tasks'));
 
-    tasks.forEach(function(origTask) {
-        if (origTask.id === taskObj) {
-            origText = origTask.text;
+    tasks.forEach(function(task) {
+        if (task.id === currentid) {
+            activeLiPara.textContent = task.text;
         }
-    })
-    activeLiPara.textContent = origText;
+    });
 
     activeLiPara.contentEditable = false;
     activeLiPara.blur();
@@ -318,7 +334,7 @@ function cancelBtnAction(e) {
     // UNDISABLE non-active li(s)
     for (let i = 0; i < updatedLiArr.length; i++) {
         if (updatedLiArr[i].classList.contains('active-li')) { continue; }
-        console.log(updatedLiArr[i]);
+
         let completed = updatedLiArr[i].querySelector('.completed');
         let editItem = updatedLiArr[i].querySelector('.edit-item');
         let deleteItem = updatedLiArr[i].querySelector('.delete-item');
@@ -333,6 +349,21 @@ function cancelBtnAction(e) {
     // REMOVE "UPDATE" and "CANCEL" buttons from UI
     e.target.parentElement.previousElementSibling.remove();
     e.target.parentElement.remove();
+    //console.log(taskArr, ` --- after cancel link function`);
+}
+
+
+function filterTasks(e) {
+    const text = e.target.value.toLowerCase();
+
+    document.querySelectorAll('.collection-item').forEach(function(task) {
+        const item = task.firstChild.nextElementSibling.textContent;
+        if (item.toLowerCase().indexOf(text) != -1) {
+            task.style.display = 'grid';
+        } else {
+            task.style.display = 'none';
+        }
+    });
 }
 
 
@@ -340,16 +371,19 @@ function clearTasks() {
     while (taskList.firstChild) {
         taskList.removeChild(taskList.firstChild);
     }
+    taskArr = [];
     clearTasksFromLocalStorage();
 
     function clearTasksFromLocalStorage() {
         localStorage.clear();
     }
+    //console.log(taskArr, ` --- After clear all tasks`);
 }
 
 
 /* SUDO CODE
-When checkBox is check for completed --- text color red and strikethrough
+complete only and incomplete only
+
 
 
 */
