@@ -1,120 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="swag.css" />
+    <title>Task List</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
-  <title>Task List</title>
-  <style>
-    li.collection-item {
-      display: grid;
-      grid-template-columns: .7fr 7fr 1.5fr 1.5fr;
-    }
-    
-    .completed-label-box {
-      margin: 0 50px 10px 20px;
-    }
-    
-    label.checkbox-wrapper {
-      display: grid;
-    }
-    
-    span.checkbox-helper {
-      margin-top: 6px;
-    }
-    
-    .task-text {
-      margin: 5px;
-      font-weight: 600;
-      color: #767676;
-    }
-    
-    .line-through {
-      text-decoration-line: line-through;
-      text-decoration-color: red;
-      color: red;
-    }
-    
-    .edit-item,
-    .delete-item,
-    .update-btn,
-    .cancel-btn {
-      justify-self: end;
-      align-self: center;
-      margin-right: 0 !important;
-    }
-    /* .update-btn,
-    .cancel-btn {
-      max-width: 90%;
-      padding: 0;
-      margin-left: .5em;
-    } */
-    
-    .update-btn {
-      background-color: #26a69a;
-    }
-    
-    .update-btn:hover {
-      background-color: #2bbbad;
-    }
-    
-    .cancel-btn {
-      background-color: #ffab40;
-      /* #bb2b2b; */
-    }
-    
-    .cancel-btn:hover {
-      background-color: #ffc06d;
-    }
-  </style>
-</head>
-
-<body>
-  <div class="container">
-    <div class="row">
-      <div class="col s12">
-        <div id="main" class="card">
-          <div class="card-content">
-            <span class="card-title">Task List</span>
-            <div class="row">
-              <form action="" id="task-form">
-                <div class="input-field col s12">
-                  <input type="text" name="task" id="task" />
-                  <label for="task">Click Here To Enter A New Task</label>
-                </div>
-                <input type="submit" value="Add Task" class="addTask-btn btn" />
-              </form>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col s12">
+          <div id="main" class="card">
+            <div class="card-content">
+              <span class="card-title">Task List</span>
+              <div class="row">
+                <form action="" id="task-form">
+                  <div class="input-field col s12">
+                    <input type="text" name="task" id="task" />
+                    <label for="task">Click Here To Enter A New Task</label>
+                  </div>
+                  <input type="submit" value="Add Task" class="addTask-btn btn" />
+                </form>
+              </div>
             </div>
-          </div>
-          <div class="card-action">
-            <h5 id="task-title">Tasks</h5>
-            <div class="input-field col s12">
-              <input type="text" name="filter" id="filter" />
-              <label for="filter">Click Here To Filter Tasks By Individual Name</label>
+            <div class="card-action">
+              <h5 id="task-title">Tasks</h5>
+              <div class="input-field col s12">
+                <input type="text" name="filter" id="filter" />
+                <label for="filter">Click Here To Filter Tasks By Individual Name</label>
+              </div>
+              <ul class="collection"></ul>
+              <a href="#" class="clear-tasks btn black">Clear Tasks</a>
             </div>
-            <label class="completed-label-box">
-              <input type="checkbox" class="filled-in completed-sorter" >
-              <span class="checkbox-helper">Show Completed Tasks Only</span>
-            </label>
-            <label class="incompleted-label-box">
-              <input type="checkbox" class="filled-in incompleted-sorter">
-              <span class="checkbox-helper">Show Incompleted Tasks Only</span>
-            </label>
-            <ul class="collection"></ul>
-            <a href="#" class="clear-tasks btn black">Clear Tasks</a>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-  <script src="app.js"></script>
-</body>
-
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.js"
+      integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="app2.js"></script>
+  </body>
 </html>
